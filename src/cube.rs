@@ -4,6 +4,7 @@ use crate::ray_intersect::{Intersect, RayIntersect};
 use image::RgbaImage;
 use crate::color::Color;
 use crate::light::Light; 
+use std::any::Any;
 
 pub struct Cube {
     pub center: Vec3,
@@ -15,6 +16,8 @@ impl Cube {
     pub fn new(center: Vec3, size: f32, materials: [Material; 6]) -> Self {
         Cube { center, size, materials }
     }
+
+    
 
     fn get_uv(&self, punto_encuentro: &Vec3) -> (f32, f32) {
         let mitad = self.size / 2.0;
@@ -147,5 +150,9 @@ impl RayIntersect for Cube {
         }
 
         (u, v)
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
     }
 }

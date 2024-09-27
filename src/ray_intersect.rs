@@ -1,5 +1,6 @@
 use nalgebra_glm::Vec3;
 use crate::material::Material;
+use std::any::Any;
 
 #[derive(Debug, Clone)]
 pub struct Intersect {
@@ -38,7 +39,8 @@ impl Intersect {
     }
 }
 
-pub trait RayIntersect {
+pub trait RayIntersect: Any {
     fn ray_intersect(&self, ray_origin: &Vec3, ray_direction: &Vec3) -> Intersect;
     fn get_uv(&self, point: &Vec3) -> (f32, f32);
+    fn as_any_mut(&mut self) -> &mut dyn Any;
 }

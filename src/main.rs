@@ -340,8 +340,8 @@ fn main() {
             progreso_transicion = (Instant::now().duration_since(tiempo_inicial).as_secs_f32() % intervalo_cambio_color.as_secs_f32()) / intervalo_cambio_color.as_secs_f32();
             color_actual = transicion_color(&color_inicial, &color_final, progreso_transicion);
         }
-
-        let objects: Vec<Box<dyn RayIntersect>> = vec![ 
+        let tiempo = tiempo_inicial.elapsed().as_secs_f32();
+        let mut objects: Vec<Box<dyn RayIntersect>> = vec![ 
             Box::new(Cube {
                 center: Vec3::new(1.5, 5.0, -6.0),
                 size: 1.0,
@@ -869,6 +869,15 @@ fn main() {
             }),
             Box::new(esfera_amarilla.clone()),
         ];
+
+        for (i, object) in objects.iter_mut().enumerate() {
+            if let Some(cube) = object.as_any_mut().downcast_mut::<Cube>() {
+                if cube.materials.iter().all(|m| m == &agua) {
+                    let desfase = i as f32 * 0.2; 
+                    cube.center.y += (tiempo * 1.0 + desfase).sin() * 0.2;
+                }
+            }
+        }        
 
         render(&mut framebuffer, &objects, &camera, &luz, &color_actual);
 

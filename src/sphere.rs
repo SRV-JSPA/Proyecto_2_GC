@@ -1,6 +1,7 @@
 use nalgebra_glm::{Vec3, dot};
 use crate::ray_intersect::{RayIntersect, Intersect};
 use crate::material::Material;
+use std::any::Any;
 
 #[derive(Clone)]
 pub struct Sphere {
@@ -47,5 +48,9 @@ impl RayIntersect for Sphere {
         let v = 0.5 - phi / std::f32::consts::PI;
 
         (u, v)
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
     }
 }
