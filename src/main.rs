@@ -55,7 +55,6 @@ pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Box<dyn RayI
         color += emissive_color;  
     }
 
-    
     let light_dir = (luz.position - intersect.point).normalize();
     let view_dir = (ray_origin - intersect.point).normalize();
     let reflect_dir = reflector(&-light_dir, &intersect.normal);
@@ -146,6 +145,10 @@ fn main() {
     manejador_textura.cargar_textura("tierra", imagen_tierra);
     let textura_tierra = manejador_textura.get_textura("tierra");
 
+    let imagen_hoja = image::open("images/hoja_arbol.jpg").unwrap().into_rgba8();
+    manejador_textura.cargar_textura("hoja", imagen_hoja);
+    let textura_hoja = manejador_textura.get_textura("hoja");
+
     let imagen_tierra_grama = image::open("images/tierra2.png").unwrap().into_rgba8();
     manejador_textura.cargar_textura("tierra_grama", imagen_tierra_grama);
     let textura_tierra_grama = manejador_textura.get_textura("tierra_grama");
@@ -175,6 +178,14 @@ fn main() {
         1.0,
         [0.0, 0.0],  
         textura_tierra,
+        None
+    );
+
+    let hojas = Material::new(
+        Color::new(255, 255, 255),  
+        1.0,
+        [0.0, 0.0],  
+        textura_hoja,
         None
     );
 
@@ -213,7 +224,7 @@ fn main() {
     let piedra = Material::new(
         Color::new(128, 128, 128),  
         1.0,                       
-        [0.7, 0.3],                 
+        [0.0, 0.0],                 
         textura_piedra,
         None          
     );
@@ -332,14 +343,529 @@ fn main() {
 
         let objects: Vec<Box<dyn RayIntersect>> = vec![ 
             Box::new(Cube {
-                center: Vec3::new(1.4, 5.0, -6.0),
+                center: Vec3::new(1.5, 5.0, -6.0),
                 size: 1.0,
-                materials: [lava.clone(), lava.clone(), lava.clone(), lava.clone(), lava.clone(), lava.clone()],
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
             }),
             Box::new(Cube {
-                center: Vec3::new(3.0, 5.0, -6.0),
+                center: Vec3::new(3.5, 5.0, -7.0),
                 size: 1.0,
-                materials: [rubber.clone(), rubber.clone(), rubber.clone(), rubber.clone(), rubber.clone(), rubber.clone()],
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(4.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(5.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(3.5, 5.0, -8.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(4.5, 5.0, -8.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(5.5, 5.0, -8.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(3.5, 5.0, -9.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(4.5, 5.0, -9.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(5.5, 5.0, -9.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(4.5, 5.0, -10.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(5.5, 5.0, -10.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(4.5, 5.0, -11.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(5.5, 5.0, -11.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(6.5, 5.0, -11.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 5.0, -11.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(6.5, 5.0, -10.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 5.0, -10.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 5.0, -9.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(6.5, 5.0, -9.0),
+                size: 1.0,
+                materials: [agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone(), agua.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(1.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(2.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(0.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(0.5, 5.0, -6.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(2.5, 5.0, -6.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(3.5, 5.0, -6.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(4.5, 5.0, -6.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(5.5, 5.0, -6.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(6.5, 5.0, -6.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(6.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 6.0, -7.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 6.0, -7.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(6.5, 5.0, -8.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 5.0, -8.0),
+                size: 1.0,
+                materials: [piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 5.0, -8.0),
+                size: 1.0,
+                materials: [piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 6.0, -8.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 6.0, -8.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 6.0, -8.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 5.0, -8.0),
+                size: 1.0,
+                materials: [piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone(), piedra.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 5.0, -9.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 5.0, -9.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 5.0, -10.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 5.0, -10.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 5.0, -11.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 5.0, -11.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 5.0, -12.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 5.0, -13.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 5.0, -13.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 5.0, -12.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 5.0, -13.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 5.0, -12.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(6.5, 5.0, -13.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(6.5, 5.0, -12.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(5.5, 5.0, -13.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(5.5, 5.0, -12.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(4.5, 5.0, -13.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(4.5, 5.0, -12.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(3.5, 5.0, -13.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(3.5, 5.0, -12.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(3.5, 5.0, -11.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(3.5, 5.0, -10.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(2.5, 5.0, -13.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(2.5, 5.0, -12.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(2.5, 5.0, -11.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(2.5, 5.0, -10.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(2.5, 5.0, -9.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(2.5, 5.0, -8.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(2.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(1.5, 5.0, -13.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(1.5, 5.0, -12.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(1.5, 5.0, -11.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(1.5, 5.0, -10.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(1.5, 5.0, -9.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(1.5, 5.0, -8.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(1.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(0.5, 5.0, -13.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(0.5, 5.0, -12.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(0.5, 5.0, -11.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(0.5, 5.0, -10.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(0.5, 5.0, -9.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(0.5, 5.0, -8.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(0.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 6.0, -7.0),
+                size: 1.0,
+                materials: [tierra_grama.clone(), tierra_grama.clone(), tierra.clone(), grama.clone(), tierra_grama.clone(), tierra_grama.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 5.0, -7.0),
+                size: 1.0,
+                materials: [tierra.clone(), tierra.clone(), tierra.clone(), tierra.clone(), tierra.clone(), tierra.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 7.0, -8.0),
+                size: 1.0,
+                materials: [madera.clone(), madera.clone(), madera.clone(), madera.clone(), madera.clone(), madera.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 8.0, -8.0),
+                size: 1.0,
+                materials: [madera.clone(), madera.clone(), madera.clone(), madera.clone(), madera.clone(), madera.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 9.0, -8.0),
+                size: 1.0,
+                materials: [madera.clone(), madera.clone(), madera.clone(), madera.clone(), madera.clone(), madera.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 10.0, -8.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 11.0, -8.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 12.0, -8.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 10.0, -8.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 11.0, -8.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 10.0, -8.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 11.0, -8.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 10.0, -7.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 11.0, -7.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 10.0, -7.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 11.0, -7.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 10.0, -7.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(9.5, 10.0, -9.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 10.0, -9.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(8.5, 11.0, -9.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(7.5, 10.0, -9.0),
+                size: 1.0,
+                materials: [hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone(), hojas.clone()],
             }),
             Box::new(esfera_amarilla.clone()),
         ];
