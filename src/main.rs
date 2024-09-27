@@ -42,6 +42,10 @@ pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Box<dyn RayI
     if !intersect.is_intersecting {
         return Color::new(4, 12, 36);
     }
+
+    if intersect.material.albedo == [0.0, 0.0] {
+        return intersect.material.diffuse; 
+    }
     
     let light_dir = (light.position - intersect.point).normalize();
     let view_dir = (ray_origin - intersect.point).normalize();
@@ -111,24 +115,36 @@ fn main() {
         [0.6, 0.3],
     );
 
+    let sol_material = Material::new(
+        Color::new(255, 234, 100),
+        1.0,
+        [0.0, 0.0],
+    );
+
+    let mut luz = Light::new(
+        Vec3::new(100.0, 100.0, 10.0),
+        Color::new(255, 255, 255),
+        5.0,
+        3.0 
+    );    
+
     let objects: Vec<Box<dyn RayIntersect>> = vec![
         Box::new(Cube {
             center: Vec3::new(-1.5, 0.0, -6.0),
             size: 1.0,
             material: rubber,
-        })
+        }),
+        Box::new(Sphere {
+            center: luz.position,  
+            radius: luz.radius,    
+            material: sol_material,
+        }),
     ];
 
     let mut camera = Camera::new(
         Vec3::new(0.0, 0.0, 5.0),
         Vec3::new(0.0, 0.0, 0.0),
         Vec3::new(0.0, 1.0, 0.0),
-    );
-
-    let light = Light::new(
-        Vec3::new(100.0, 100.0, 10.0),
-        Color::new(255, 255, 255),
-        5.0
     );
 
     let rotation_speed = PI / 10.0;
@@ -162,7 +178,7 @@ fn main() {
             camera.orbit(0.0, rotation_speed);
         }
 
-        render(&mut framebuffer, &objects, &camera, &light);
+        render(&mut framebuffer, &objects, &camera, &luz);
 
         window
             .update_with_buffer(&framebuffer.buffer, framebuffer_width, framebuffer_height)
