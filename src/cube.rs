@@ -3,24 +3,23 @@ use crate::material::Material;
 use crate::ray_intersect::{Intersect, RayIntersect};
 use image::RgbaImage;
 use crate::color::Color;
+use crate::light::Light; 
 
 pub struct Cube {
     pub center: Vec3,
     pub size: f32,
-    pub material: Material,
+    pub materials: [Material; 6], 
 }
 
 impl Cube {
-    pub fn new(center: Vec3, size: f32, material: Material) -> Self {
-        Cube { center, size, material }
+    pub fn new(center: Vec3, size: f32, materials: [Material; 6]) -> Self {
+        Cube { center, size, materials }
     }
-
 
     fn get_uv(&self, punto_encuentro: &Vec3) -> (f32, f32) {
         let mitad = self.size / 2.0;
         let min = self.center - Vec3::new(mitad, mitad, mitad);
         let max = self.center + Vec3::new(mitad, mitad, mitad);
-
 
         let mut u = 0.0;
         let mut v = 0.0;
@@ -47,20 +46,14 @@ impl Cube {
         (u, v)
     }
 
-    fn get_diffuse_color(&self, u: f32, v: f32) -> Color {
-        if let Some(textura) = &self.material.textura {
-
+    fn get_diffuse_color(&self, face_index: usize, u: f32, v: f32) -> Color {
+        if let Some(textura) = &self.materials[face_index].textura {
             let tex_x = (u * textura.width() as f32) as u32 % textura.width();
             let tex_y = (v * textura.height() as f32) as u32 % textura.height();
-            
-
             let pixel = textura.get_pixel(tex_x, tex_y);
-            
-
             Color::new(pixel[0], pixel[1], pixel[2])
         } else {
-
-            self.material.diffuse.clone()
+            self.materials[face_index].diffuse.clone()
         }
     }
 }
@@ -86,41 +79,39 @@ impl RayIntersect for Cube {
         let punto_encuentro = ray_origin + ray_direction * t_hit;
 
         let mut normal = Vec3::new(0.0, 0.0, 0.0);
+        let mut face_index = 0;
+
         for i in 0..3 {
             if (punto_encuentro[i] - min[i]).abs() < 0.001 {
                 normal[i] = -1.0;
+                face_index = match i {
+                    0 => 0, 
+                    1 => 2, 
+                    2 => 4, 
+                    _ => 0,
+                };
             } else if (punto_encuentro[i] - max[i]).abs() < 0.001 {
                 normal[i] = 1.0;
+                face_index = match i {
+                    0 => 1, 
+                    1 => 3, 
+                    2 => 5, 
+                    _ => 1,
+                };
             }
         }
 
-
         let (u, v) = self.get_uv(&punto_encuentro);
-
-
         let u = u.clamp(0.0, 1.0);
         let v = v.clamp(0.0, 1.0);
 
-
-        let textura_color = if let Some(textura) = &self.material.textura {
-            let tex_x = (u * (textura.width() as f32)) as u32;
-            let tex_y = (v * (textura.height() as f32)) as u32;
-
-
-            let tex_x = tex_x.min(textura.width() as u32 - 1);
-            let tex_y = tex_y.min(textura.height() as u32 - 1);
-
-            let pixel = textura.get_pixel(tex_x, tex_y);
-            Color::new(pixel[0], pixel[1], pixel[2])
-        } else {
-            self.material.diffuse
-        };
+        let textura_color = self.get_diffuse_color(face_index, u, v);
 
         Intersect::new(
             punto_encuentro,
             normal,
             t_hit,
-            self.material.clone(),
+            self.materials[face_index].clone(),
             u,
             v
         )
@@ -158,4 +149,3 @@ impl RayIntersect for Cube {
         (u, v)
     }
 }
-

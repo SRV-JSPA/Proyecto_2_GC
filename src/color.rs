@@ -1,6 +1,7 @@
+use std::ops::{Add, AddAssign, Mul};
 use std::fmt;
 
-#[derive(Debug, Clone, Copy, PartialEq)] 
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Color {
     r: u8,
     g: u8,
@@ -36,8 +37,6 @@ impl Color {
     pub fn b(&self) -> u8 { self.b }
 }
 
-use std::ops::Add;
-
 impl Add for Color {
     type Output = Color;
 
@@ -50,7 +49,13 @@ impl Add for Color {
     }
 }
 
-use std::ops::Mul;
+impl AddAssign<Color> for Color {
+    fn add_assign(&mut self, other: Color) {
+        self.r = self.r.saturating_add(other.r);
+        self.g = self.g.saturating_add(other.g);
+        self.b = self.b.saturating_add(other.b);
+    }
+}
 
 impl Mul<f32> for Color {
     type Output = Color;

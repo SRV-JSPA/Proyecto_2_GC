@@ -42,29 +42,36 @@ pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Box<dyn RayI
         return color_fondo.clone();
     }
 
-    if let Some(ref textura) = intersect.material.textura {
-        let diffuse_color = intersect.material.get_diffuse_color(intersect.u, intersect.v);
-        return diffuse_color;
-    } else {
-        
-        let diffuse_color = intersect.material.diffuse.clone();
-        return diffuse_color;
-    }
     
+    let mut color = intersect.material.diffuse.clone();
 
-    let luz_dir = (luz.position - intersect.point).normalize();
-    let vista_dir = (ray_origin - intersect.point).normalize();
-    let reflector_dir = reflector(&-luz_dir, &intersect.normal);
+    
+    if let Some(ref textura) = intersect.material.textura {
+        color = intersect.material.get_diffuse_color(intersect.u, intersect.v);
+    }
 
-    let intensidad_difuminado = intersect.normal.dot(&luz_dir).max(0.0).min(1.0);
-    let diffuse = intersect.material.diffuse * intersect.material.albedo[0] * intensidad_difuminado * luz.intensity;
+    
+    if let Some(emissive_color) = intersect.material.emisividad_color {
+        color += emissive_color;  
+    }
 
-    let specular_intensidad = vista_dir.dot(&reflector_dir).max(0.0).powf(intersect.material.specular);
-    let specular = luz.color * intersect.material.albedo[1] * specular_intensidad * luz.intensity;
+    
+    let light_dir = (luz.position - intersect.point).normalize();
+    let view_dir = (ray_origin - intersect.point).normalize();
+    let reflect_dir = reflector(&-light_dir, &intersect.normal);
 
-    diffuse + specular
+    let diff = intersect.normal.dot(&light_dir).max(0.0);
+    let diffuse = intersect.material.diffuse * intersect.material.albedo[0] * diff * luz.intensity;
+
+    
+    let spec = view_dir.dot(&reflect_dir).max(0.0).powf(intersect.material.specular);
+    let specular = luz.color * intersect.material.albedo[1] * spec * luz.intensity;
+
+    
+    color += diffuse + specular;
+
+    color
 }
-
 
 fn transicion_color(inicio: &Color, fin: &Color, t: f32) -> Color {
     let r = (inicio.r() as f32 * (1.0 - t) + fin.r() as f32 * t) as u8;
@@ -101,10 +108,10 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Box<dyn RayIntersect>], 
 }
 
 fn main() {
-    let window_width = 900;
-    let window_height = 700;
-    let framebuffer_width = 900;
-    let framebuffer_height = 700;
+    let window_width = 800;
+    let window_height = 600;
+    let framebuffer_width = 800;
+    let framebuffer_height = 600;
     let frame_delay = Duration::from_millis(16);
     let intervalo_cambio_color = Duration::from_secs(67); 
     let duracion_recorrido_luz = Duration::from_secs(10); 
@@ -122,32 +129,108 @@ fn main() {
         Color::new(80, 0, 0),
         1.0,
         [0.9, 0.1],
-        None
+        None,
+        None,
     );
 
     let ivory = Material::new(
         Color::new(100, 100, 80),
         50.0,
         [0.6, 0.3],
+        None,
         None
     );
 
     let mut manejador_textura = TextureManager::new();
-    let imagen = image::open("images/tierra.png").unwrap().into_rgba8();
-    manejador_textura.cargar_textura("tierra", imagen);
-    let textura = manejador_textura.get_textura("tierra");
+    let imagen_tierra = image::open("images/tierra.png").unwrap().into_rgba8();
+    manejador_textura.cargar_textura("tierra", imagen_tierra);
+    let textura_tierra = manejador_textura.get_textura("tierra");
+
+    let imagen_tierra_grama = image::open("images/tierra2.png").unwrap().into_rgba8();
+    manejador_textura.cargar_textura("tierra_grama", imagen_tierra_grama);
+    let textura_tierra_grama = manejador_textura.get_textura("tierra_grama");
+
+    let imagen_lava = image::open("images/lava.jpg").unwrap().into_rgba8();
+    manejador_textura.cargar_textura("lava", imagen_lava);
+    let textura_lava = manejador_textura.get_textura("lava");
+
+    let imagen_piedra = image::open("images/piedra.webp").unwrap().into_rgba8();
+    manejador_textura.cargar_textura("piedra", imagen_piedra);
+    let textura_piedra = manejador_textura.get_textura("piedra");
+
+    let imagen_agua = image::open("images/agua.jpg").unwrap().into_rgba8();
+    manejador_textura.cargar_textura("agua", imagen_agua);
+    let textura_agua = manejador_textura.get_textura("agua");
+
+    let imagen_grama = image::open("images/grama.png").unwrap().into_rgba8();
+    manejador_textura.cargar_textura("grama", imagen_grama);
+    let textura_grama = manejador_textura.get_textura("grama");
+
+    let imagen_madera = image::open("images/madera.jpg").unwrap().into_rgba8();
+    manejador_textura.cargar_textura("madera", imagen_madera);
+    let textura_madera = manejador_textura.get_textura("madera");
 
     let tierra = Material::new(
         Color::new(255, 255, 255),  
         1.0,
         [0.0, 0.0],  
-        textura,  
+        textura_tierra,
+        None
+    );
+
+    let madera = Material::new(
+        Color::new(255, 255, 255),  
+        1.0,
+        [0.0, 0.0],  
+        textura_madera,
+        None
+    );
+
+    let tierra_grama = Material::new(
+        Color::new(255, 255, 255),  
+        1.0,
+        [0.0, 0.0],  
+        textura_tierra_grama,  
+        None
+    );
+
+    let grama = Material::new(
+        Color::new(255, 255, 255),  
+        1.0,
+        [0.0, 0.0],  
+        textura_grama,
+        None
+    );
+
+    let lava = Material::new(
+        Color::new(255, 255, 255),  
+        1.0,
+        [0.0, 0.0],  
+        textura_lava,
+        Some(Color::new(255, 69, 0)),
+    );
+
+    let piedra = Material::new(
+        Color::new(128, 128, 128),  
+        1.0,                       
+        [0.7, 0.3],                 
+        textura_piedra,
+        None          
+    );
+    
+    let agua = Material::new(
+        Color::new(255, 255, 255),  
+        1.0,
+        [0.0, 0.0],  
+        textura_agua,  
+        None
     );
 
     let sol_material = Material::new(
         Color::new(255, 234, 100), 
         1.0,
         [0.0, 0.0],
+        None,
         None
     );
 
@@ -249,9 +332,14 @@ fn main() {
 
         let objects: Vec<Box<dyn RayIntersect>> = vec![ 
             Box::new(Cube {
-                center: Vec3::new(-1.5, 0.0, -6.0),
+                center: Vec3::new(1.4, 5.0, -6.0),
                 size: 1.0,
-                material: tierra.clone(),
+                materials: [lava.clone(), lava.clone(), lava.clone(), lava.clone(), lava.clone(), lava.clone()],
+            }),
+            Box::new(Cube {
+                center: Vec3::new(3.0, 5.0, -6.0),
+                size: 1.0,
+                materials: [rubber.clone(), rubber.clone(), rubber.clone(), rubber.clone(), rubber.clone(), rubber.clone()],
             }),
             Box::new(esfera_amarilla.clone()),
         ];
