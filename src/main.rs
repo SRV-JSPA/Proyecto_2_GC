@@ -6,6 +6,7 @@ mod camera;
 mod light;
 mod material;
 mod cube;
+mod texturas;
 use nalgebra_glm::{Vec3, normalize};
 use std::time::{Duration, Instant};
 use std::f32::consts::PI;
@@ -18,6 +19,8 @@ use crate::framebuffer::Framebuffer;
 use crate::camera::Camera;
 use crate::light::Light;
 use crate::material::Material;
+use crate::texturas::TextureManager;
+use image::open;
 
 fn reflector(incidente: &Vec3, normal: &Vec3) -> Vec3 {
     incidente - 2.0 * incidente.dot(normal) * normal
@@ -30,7 +33,7 @@ pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Box<dyn RayI
     for object in objects {
         let tmp = object.ray_intersect(ray_origin, ray_direction);
         if tmp.is_intersecting && tmp.distance < zbuffer {
-            zbuffer = intersect.distance;
+            zbuffer = tmp.distance;  
             intersect = tmp;
         }
     }
@@ -39,9 +42,15 @@ pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Box<dyn RayI
         return color_fondo.clone();
     }
 
-    if intersect.material.albedo == [0.0, 0.0] {
-        return intersect.material.diffuse;
+    if let Some(ref textura) = intersect.material.textura {
+        let diffuse_color = intersect.material.get_diffuse_color(intersect.u, intersect.v);
+        return diffuse_color;
+    } else {
+        
+        let diffuse_color = intersect.material.diffuse.clone();
+        return diffuse_color;
     }
+    
 
     let luz_dir = (luz.position - intersect.point).normalize();
     let vista_dir = (ray_origin - intersect.point).normalize();
@@ -55,6 +64,7 @@ pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Box<dyn RayI
 
     diffuse + specular
 }
+
 
 fn transicion_color(inicio: &Color, fin: &Color, t: f32) -> Color {
     let r = (inicio.r() as f32 * (1.0 - t) + fin.r() as f32 * t) as u8;
@@ -91,12 +101,12 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Box<dyn RayIntersect>], 
 }
 
 fn main() {
-    let window_width = 800;
-    let window_height = 600;
-    let framebuffer_width = 800;
-    let framebuffer_height = 600;
+    let window_width = 900;
+    let window_height = 700;
+    let framebuffer_width = 900;
+    let framebuffer_height = 700;
     let frame_delay = Duration::from_millis(16);
-    let intervalo_cambio_color = Duration::from_secs(65); 
+    let intervalo_cambio_color = Duration::from_secs(67); 
     let duracion_recorrido_luz = Duration::from_secs(10); 
 
     let mut framebuffer = Framebuffer::new(framebuffer_width, framebuffer_height);
@@ -112,18 +122,33 @@ fn main() {
         Color::new(80, 0, 0),
         1.0,
         [0.9, 0.1],
+        None
     );
 
     let ivory = Material::new(
         Color::new(100, 100, 80),
         50.0,
         [0.6, 0.3],
+        None
+    );
+
+    let mut manejador_textura = TextureManager::new();
+    let imagen = image::open("images/tierra.png").unwrap().into_rgba8();
+    manejador_textura.cargar_textura("tierra", imagen);
+    let textura = manejador_textura.get_textura("tierra");
+
+    let tierra = Material::new(
+        Color::new(255, 255, 255),  
+        1.0,
+        [0.0, 0.0],  
+        textura,  
     );
 
     let sol_material = Material::new(
         Color::new(255, 234, 100), 
         1.0,
         [0.0, 0.0],
+        None
     );
 
     let mut luz = Light::new(
@@ -226,7 +251,7 @@ fn main() {
             Box::new(Cube {
                 center: Vec3::new(-1.5, 0.0, -6.0),
                 size: 1.0,
-                material: rubber,
+                material: tierra.clone(),
             }),
             Box::new(esfera_amarilla.clone()),
         ];

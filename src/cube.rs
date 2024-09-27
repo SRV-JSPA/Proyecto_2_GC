@@ -1,6 +1,8 @@
 use nalgebra_glm::Vec3;
 use crate::material::Material;
 use crate::ray_intersect::{Intersect, RayIntersect};
+use image::RgbaImage;
+use crate::color::Color;
 
 pub struct Cube {
     pub center: Vec3,
@@ -12,14 +14,62 @@ impl Cube {
     pub fn new(center: Vec3, size: f32, material: Material) -> Self {
         Cube { center, size, material }
     }
+
+
+    fn get_uv(&self, punto_encuentro: &Vec3) -> (f32, f32) {
+        let mitad = self.size / 2.0;
+        let min = self.center - Vec3::new(mitad, mitad, mitad);
+        let max = self.center + Vec3::new(mitad, mitad, mitad);
+
+
+        let mut u = 0.0;
+        let mut v = 0.0;
+
+        if (punto_encuentro.x - min.x).abs() < 0.001 { 
+            u = (punto_encuentro.z - min.z) / (max.z - min.z);
+            v = (punto_encuentro.y - min.y) / (max.y - min.y);
+        } else if (punto_encuentro.x - max.x).abs() < 0.001 { 
+            u = (punto_encuentro.z - min.z) / (max.z - min.z);
+            v = (punto_encuentro.y - min.y) / (max.y - min.y);
+        } else if (punto_encuentro.y - min.y).abs() < 0.001 { 
+            u = (punto_encuentro.x - min.x) / (max.x - min.x);
+            v = (punto_encuentro.z - min.z) / (max.z - min.z);
+        } else if (punto_encuentro.y - max.y).abs() < 0.001 { 
+            u = (punto_encuentro.x - min.x) / (max.x - min.x);
+            v = (punto_encuentro.z - min.z) / (max.z - min.z);
+        } else if (punto_encuentro.z - min.z).abs() < 0.001 { 
+            u = (punto_encuentro.x - min.x) / (max.x - min.x);
+            v = (punto_encuentro.y - min.y) / (max.y - min.y);
+        } else if (punto_encuentro.z - max.z).abs() < 0.001 { 
+            u = (punto_encuentro.x - min.x) / (max.x - min.x);
+            v = (punto_encuentro.y - min.y) / (max.y - min.y);
+        }
+        (u, v)
+    }
+
+    fn get_diffuse_color(&self, u: f32, v: f32) -> Color {
+        if let Some(textura) = &self.material.textura {
+
+            let tex_x = (u * textura.width() as f32) as u32 % textura.width();
+            let tex_y = (v * textura.height() as f32) as u32 % textura.height();
+            
+
+            let pixel = textura.get_pixel(tex_x, tex_y);
+            
+
+            Color::new(pixel[0], pixel[1], pixel[2])
+        } else {
+
+            self.material.diffuse.clone()
+        }
+    }
 }
 
 impl RayIntersect for Cube {
     fn ray_intersect(&self, ray_origin: &Vec3, ray_direction: &Vec3) -> Intersect {
-        let half_size = self.size / 2.0;
-        
-        let min = self.center - Vec3::new(half_size, half_size, half_size);
-        let max = self.center + Vec3::new(half_size, half_size, half_size);
+        let mitad = self.size / 2.0;
+        let min = self.center - Vec3::new(mitad, mitad, mitad);
+        let max = self.center + Vec3::new(mitad, mitad, mitad);
 
         let inv_dir = Vec3::new(1.0 / ray_direction.x, 1.0 / ray_direction.y, 1.0 / ray_direction.z);
         let t_min = (min - ray_origin).component_mul(&inv_dir);
@@ -33,23 +83,79 @@ impl RayIntersect for Cube {
         }
 
         let t_hit = if t1 < 0.0 { t2 } else { t1 };
-
-        let hit_point = ray_origin + ray_direction * t_hit;
+        let punto_encuentro = ray_origin + ray_direction * t_hit;
 
         let mut normal = Vec3::new(0.0, 0.0, 0.0);
         for i in 0..3 {
-            if (hit_point[i] - min[i]).abs() < 0.001 {
+            if (punto_encuentro[i] - min[i]).abs() < 0.001 {
                 normal[i] = -1.0;
-            } else if (hit_point[i] - max[i]).abs() < 0.001 {
+            } else if (punto_encuentro[i] - max[i]).abs() < 0.001 {
                 normal[i] = 1.0;
             }
         }
 
+
+        let (u, v) = self.get_uv(&punto_encuentro);
+
+
+        let u = u.clamp(0.0, 1.0);
+        let v = v.clamp(0.0, 1.0);
+
+
+        let textura_color = if let Some(textura) = &self.material.textura {
+            let tex_x = (u * (textura.width() as f32)) as u32;
+            let tex_y = (v * (textura.height() as f32)) as u32;
+
+
+            let tex_x = tex_x.min(textura.width() as u32 - 1);
+            let tex_y = tex_y.min(textura.height() as u32 - 1);
+
+            let pixel = textura.get_pixel(tex_x, tex_y);
+            Color::new(pixel[0], pixel[1], pixel[2])
+        } else {
+            self.material.diffuse
+        };
+
         Intersect::new(
-            hit_point,
+            punto_encuentro,
             normal,
             t_hit,
-            self.material,
+            self.material.clone(),
+            u,
+            v
         )
     }
+
+    fn get_uv(&self, punto_encuentro: &Vec3) -> (f32, f32) {
+        let mitad = self.size / 2.0;
+        let min = self.center - Vec3::new(mitad, mitad, mitad);
+        let max = self.center + Vec3::new(mitad, mitad, mitad);
+
+
+        let mut u = 0.0;
+        let mut v = 0.0;
+
+        if (punto_encuentro.x - min.x).abs() < 0.001 { 
+            u = (punto_encuentro.z - min.z) / (max.z - min.z);
+            v = (punto_encuentro.y - min.y) / (max.y - min.y);
+        } else if (punto_encuentro.x - max.x).abs() < 0.001 { 
+            u = (punto_encuentro.z - min.z) / (max.z - min.z);
+            v = (punto_encuentro.y - min.y) / (max.y - min.y);
+        } else if (punto_encuentro.y - min.y).abs() < 0.001 { 
+            u = (punto_encuentro.x - min.x) / (max.x - min.x);
+            v = (punto_encuentro.z - min.z) / (max.z - min.z);
+        } else if (punto_encuentro.y - max.y).abs() < 0.001 { 
+            u = (punto_encuentro.x - min.x) / (max.x - min.x);
+            v = (punto_encuentro.z - min.z) / (max.z - min.z);
+        } else if (punto_encuentro.z - min.z).abs() < 0.001 { 
+            u = (punto_encuentro.x - min.x) / (max.x - min.x);
+            v = (punto_encuentro.y - min.y) / (max.y - min.y);
+        } else if (punto_encuentro.z - max.z).abs() < 0.001 { 
+            u = (punto_encuentro.x - min.x) / (max.x - min.x);
+            v = (punto_encuentro.y - min.y) / (max.y - min.y);
+        }
+
+        (u, v)
+    }
 }
+

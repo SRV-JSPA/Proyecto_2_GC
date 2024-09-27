@@ -1,4 +1,3 @@
-
 use nalgebra_glm::{Vec3, dot};
 use crate::ray_intersect::{RayIntersect, Intersect};
 use crate::material::Material;
@@ -27,10 +26,26 @@ impl RayIntersect for Sphere {
                 let normal = (point - self.center).normalize();
                 let distance = t;
 
-                return Intersect::new(point, normal, distance, self.material);
+                return Intersect::new(point, normal, distance, self.material.clone(), 0.0, 0.0); 
             }
         }
 
         Intersect::empty()
+    }
+
+    fn get_uv(&self, point: &Vec3) -> (f32, f32) {
+
+        let r = (point - self.center).normalize();
+
+
+        let theta = r.z.atan2(r.x);
+
+
+        let phi = r.y.asin();
+
+        let u = 0.5 + theta / (2.0 * std::f32::consts::PI);
+        let v = 0.5 - phi / std::f32::consts::PI;
+
+        (u, v)
     }
 }
