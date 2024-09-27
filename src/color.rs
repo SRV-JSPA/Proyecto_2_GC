@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)] 
 pub struct Color {
     r: u8,
     g: u8,
@@ -12,7 +12,6 @@ impl Color {
         Color { r, g, b }
     }
 
-
     pub fn from_hex(hex: u32) -> Self {
         let r = ((hex >> 16) & 0xFF) as u8;
         let g = ((hex >> 8) & 0xFF) as u8;
@@ -20,12 +19,14 @@ impl Color {
         Color { r, g, b }
     }
 
-
     pub fn to_hex(&self) -> u32 {
         ((self.r as u32) << 16) | ((self.g as u32) << 8) | (self.b as u32)
     }
-}
 
+    pub fn r(&self) -> u8 { self.r }
+    pub fn g(&self) -> u8 { self.g }
+    pub fn b(&self) -> u8 { self.b }
+}
 
 use std::ops::Add;
 
@@ -41,7 +42,6 @@ impl Add for Color {
     }
 }
 
-
 use std::ops::Mul;
 
 impl Mul<f32> for Color {
@@ -55,7 +55,6 @@ impl Mul<f32> for Color {
         }
     }
 }
-
 
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

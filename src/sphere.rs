@@ -3,6 +3,7 @@ use nalgebra_glm::{Vec3, dot};
 use crate::ray_intersect::{RayIntersect, Intersect};
 use crate::material::Material;
 
+#[derive(Clone)]
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
