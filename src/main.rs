@@ -33,26 +33,23 @@ pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Box<dyn RayI
     for object in objects {
         let tmp = object.ray_intersect(ray_origin, ray_direction);
         if tmp.is_intersecting && tmp.distance < zbuffer {
-            zbuffer = tmp.distance;  
+            zbuffer = tmp.distance;
             intersect = tmp;
         }
     }
 
     if !intersect.is_intersecting {
-        return color_fondo.clone();
+        return color_fondo.clone();  
     }
 
-    
-    let mut color = intersect.material.diffuse.clone();
+    let mut color = intersect.material.diffuse.clone();  
 
-    
     if let Some(ref textura) = intersect.material.textura {
         color = intersect.material.get_diffuse_color(intersect.u, intersect.v);
     }
 
-    
     if let Some(emissive_color) = intersect.material.emisividad_color {
-        color += emissive_color;  
+        color += emissive_color;
     }
 
     let light_dir = (luz.position - intersect.point).normalize();
@@ -62,15 +59,14 @@ pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Box<dyn RayI
     let diff = intersect.normal.dot(&light_dir).max(0.0);
     let diffuse = intersect.material.diffuse * intersect.material.albedo[0] * diff * luz.intensity;
 
-    
     let spec = view_dir.dot(&reflect_dir).max(0.0).powf(intersect.material.specular);
     let specular = luz.color * intersect.material.albedo[1] * spec * luz.intensity;
 
-    
     color += diffuse + specular;
 
     color
 }
+
 
 fn transicion_color(inicio: &Color, fin: &Color, t: f32) -> Color {
     let r = (inicio.r() as f32 * (1.0 - t) + fin.r() as f32 * t) as u8;
@@ -174,68 +170,70 @@ fn main() {
     let textura_madera = manejador_textura.get_textura("madera");
 
     let tierra = Material::new(
-        Color::new(255, 255, 255),  
-        1.0,
-        [0.0, 0.0],  
-        textura_tierra,
+        Color::new(101, 67, 33),  
+        0.1, 
+        [0.9, 0.05],
+        textura_tierra.clone(),
         None
-    );
+    );    
 
     let hojas = Material::new(
-        Color::new(255, 255, 255),  
-        1.0,
-        [0.0, 0.0],  
-        textura_hoja,
+        Color::new(34, 139, 34),  
+        0.2,
+        [0.4, 0.1],  
+        textura_hoja.clone(),
         None
     );
 
     let madera = Material::new(
-        Color::new(255, 255, 255),  
-        1.0,
-        [0.0, 0.0],  
+        Color::new(139, 69, 19),  
+        0.2,  
+        [0.5, 0.1],  
         textura_madera,
         None
     );
+    
 
     let tierra_grama = Material::new(
-        Color::new(255, 255, 255),  
-        1.0,
-        [0.0, 0.0],  
-        textura_tierra_grama,  
+        Color::new(101, 67, 33),  
+        0.1, 
+        [0.9, 0.05],
+        textura_tierra_grama.clone(),  
         None
     );
 
     let grama = Material::new(
-        Color::new(255, 255, 255),  
-        1.0,
-        [0.0, 0.0],  
-        textura_grama,
+        Color::new(50, 205, 50), 
+        0.2,  
+        [0.05, 0.1], 
+        textura_grama.clone(),
         None
     );
+    
 
     let lava = Material::new(
-        Color::new(255, 255, 255),  
+        Color::new(34, 139, 34),  
         1.0,
         [0.0, 0.0],  
-        textura_lava,
+        textura_lava.clone(),
         Some(Color::new(255, 69, 0)),
     );
 
     let piedra = Material::new(
-        Color::new(128, 128, 128),  
-        1.0,                       
-        [0.0, 0.0],                 
-        textura_piedra,
-        None          
-    );
+        Color::new(112, 112, 112),  
+        0.15,  
+        [0.75, 0.05],  
+        textura_piedra.clone(),
+        None
+    );    
     
     let agua = Material::new(
-        Color::new(255, 255, 255),  
-        1.0,
-        [0.0, 0.0],  
-        textura_agua,  
+        Color::new(64, 164, 223),  
+        0.9,  
+        [0.1, 0.5],  
+        textura_agua.clone(),
         None
-    );
+    );    
 
     let sol_material = Material::new(
         Color::new(255, 234, 100), 
@@ -248,7 +246,7 @@ fn main() {
     let mut luz = Light::new(
         Vec3::new(100.0, 100.0, 10.0),
         Color::new(255, 255, 255),
-        5.0,
+        3.5,
         3.0,
     );
 
@@ -260,7 +258,7 @@ fn main() {
 
     let mut camera = Camera::new(
         Vec3::new(0.0, 0.0, 5.0),
-        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::new(0.0, 10.0, 0.0),
         Vec3::new(0.0, 1.0, 0.0),
     );
 
